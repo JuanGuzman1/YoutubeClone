@@ -17,7 +17,7 @@ const VideoPlayer = (props: VideoPlayerProps) => {
         source={{ uri: videoURI }}
         posterSource={{ uri: thumbnailURI }}
         posterStyle={{ resizeMode: "cover" }}
-        usePoster={true}
+        usePoster={false}
         useNativeControls
         resizeMode={"contain"}
       />

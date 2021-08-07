@@ -40,7 +40,7 @@ const VideoListItem = (props: VideoListItemProps) => {
   return (
     <Pressable onPress={openVideoPage}>
       {/* thumbnail */}
-      <View>
+      <View style={{ marginVertical: 15 }}>
         <Image
           style={styles.thumbnail}
           source={{
