@@ -1,9 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import VideoListItem from "../components/VideoListItem";
-import videos from "../assets/data/videos.json";
+import { DataStore } from "@aws-amplify/datastore";
+import { Video } from "../src/models";
 
 const HomeScreen = () => {
+  const [videos, setVideos] = useState<Video[]>([]);
+
+  useEffect(() => {
+    //fetch videos
+    const fetchVideos = async () => {
+      const response = await DataStore.query(Video);
+      setVideos(response);
+    };
+    fetchVideos();
+  }, []);
+
   return (
     <View>
       {/* video list item */}

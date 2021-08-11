@@ -1,5 +1,5 @@
 import { AntDesign } from "@expo/vector-icons";
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,9 +8,10 @@ import {
   Platform,
   FlatList,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import video from "../../assets/data/video.json";
+
 import videos from "../../assets/data/videos.json";
 import VideoListItem from "../../components/VideoListItem";
 import VideoPlayer from "../../components/VideoPlayer";
@@ -22,20 +23,49 @@ import BottomSheet, {
 import VideoComments from "../../components/VideoComments";
 import VideoComment from "../../components/VideoComment";
 import comments from "../../assets/data/comments.json";
+import { Video, Comment } from "../../src/models";
+import { useRoute } from "@react-navigation/native";
+import { DataStore } from "aws-amplify";
 
 const VideoScreen = () => {
-  let viewString = video.views.toString();
-  if (video.views > 1000000) {
-    viewString = (video.views / 1000000).toFixed(1) + "M";
-  } else if (video.views > 1000) {
-    viewString = (video.views / 1000).toFixed(1) + "K";
-  }
+  const [video, setVideo] = useState<Video | undefined>(undefined);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const route = useRoute();
+  const videoId = route.params?.id;
+
+  useEffect(() => {
+    DataStore.query(Video, videoId).then(setVideo);
+  }, [videoId]);
+
+  useEffect(() => {
+    if (!video) {
+      return;
+    }
+    const fetchComments = async () => {
+      const response = (await DataStore.query(Comment)).filter(
+        (c) => c.videoID === video.id
+      );
+      setComments(response);
+    };
+    fetchComments();
+  }, [video]);
 
   const commentsSheetRef = useRef<BottomSheetModal>(null);
 
   const openComments = () => {
     commentsSheetRef.current?.present();
   };
+
+  if (!video) {
+    return <ActivityIndicator size="small" color="#00ff00" />;
+  }
+
+  let viewString = video.views.toString();
+  if (video.views > 1000000) {
+    viewString = (video.views / 1000000).toFixed(1) + "M";
+  } else if (video.views > 1000) {
+    viewString = (video.views / 1000).toFixed(1) + "K";
+  }
 
   return (
     <View
@@ -53,7 +83,7 @@ const VideoScreen = () => {
           <Text style={styles.tags}>{video.tags}</Text>
           <Text style={styles.title}>{video.title}</Text>
           <Text style={styles.subtitle}>
-            {video.user.name} {viewString} views {video.createdAt}
+            {video.User?.name} {viewString} views {video.createdAt}
           </Text>
         </View>
         {/* Action list */}
@@ -89,13 +119,13 @@ const VideoScreen = () => {
             padding: 10,
           }}
         >
-          <Image style={styles.avatar} source={{ uri: video.user.image }} />
+          <Image style={styles.avatar} source={{ uri: video.User?.image }} />
           <View style={{ marginHorizontal: 10, flex: 1 }}>
             <Text style={{ color: "white", fontSize: 18, fontWeight: "bold" }}>
-              {video.user.name}
+              {video.User?.name}
             </Text>
             <Text style={{ color: "lightgrey", fontSize: 18 }}>
-              {video.user.subscribers} Subscribers
+              {video.User?.subscribers} Subscribers
             </Text>
           </View>
           <Text
@@ -117,7 +147,8 @@ const VideoScreen = () => {
         >
           <Text style={{ color: "white" }}>Comments 333</Text>
           {/* comment component */}
-          <VideoComment comment={comments[0]} />
+
+          {!!comments.length && <VideoComment comment={comments[0]} />}
         </Pressable>
         {/* all comments */}
         <BottomSheetModal
@@ -128,7 +159,7 @@ const VideoScreen = () => {
             <View style={[style, { backgroundColor: "#4d4d4d" }]} />
           )}
         >
-          <VideoComments />
+          <VideoComments comments={comments} videoId={video.id} />
         </BottomSheetModal>
       </View>
     </View>

@@ -3,21 +3,10 @@ import { View, Text, Image, Pressable } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 import styles from "./styles";
 import { useNavigation } from "@react-navigation/native";
+import { Video } from "../../src/models";
 
 type VideoListItemProps = {
-  video: {
-    id: string;
-    createdAt: string;
-    title: string;
-    thumbnail: string;
-    videoUrl: string;
-    duration: number;
-    user: {
-      name: string;
-      image?: string;
-    };
-    views: number;
-  };
+  video: Video;
 };
 
 const VideoListItem = (props: VideoListItemProps) => {
@@ -61,14 +50,14 @@ const VideoListItem = (props: VideoListItemProps) => {
         <Image
           style={styles.avatar}
           source={{
-            uri: video.user.image,
+            uri: video.User?.image,
           }}
         />
         {/*middle container: title, subtitle, etc.*/}
         <View style={styles.middleContainer}>
           <Text style={styles.title}>{video.title}</Text>
           <Text style={styles.subtitle}>
-            {video.user.name} {viewString} views {video.createdAt}
+            {video.User?.name} {viewString} views {video.createdAt}
           </Text>
         </View>
         {/*icon */}
