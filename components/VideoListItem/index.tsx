@@ -4,6 +4,8 @@ import { Entypo } from "@expo/vector-icons";
 import styles from "./styles";
 import { useNavigation } from "@react-navigation/native";
 import { Video } from "../../src/models";
+import { Storage } from "aws-amplify";
+import { useState, useEffect } from "react";
 
 type VideoListItemProps = {
   video: Video;
@@ -11,6 +13,8 @@ type VideoListItemProps = {
 
 const VideoListItem = (props: VideoListItemProps) => {
   const { video } = props;
+  const [image, setImage] = useState<string | null>(null);
+
   const minutes = Math.floor(video.duration / 60);
   const seconds = video.duration % 60;
   let viewString = video.views.toString();
@@ -21,6 +25,14 @@ const VideoListItem = (props: VideoListItemProps) => {
   }
 
   const navigation = useNavigation();
+
+  useEffect(() => {
+    if (video.thumbnail.startsWith("http")) {
+      setImage(video.thumbnail);
+    } else {
+      Storage.get(video.thumbnail).then(setImage);
+    }
+  }, [video]);
 
   const openVideoPage = () => {
     navigation.navigate("VideoScreen", { id: video.id });
@@ -33,7 +45,7 @@ const VideoListItem = (props: VideoListItemProps) => {
         <Image
           style={styles.thumbnail}
           source={{
-            uri: video.thumbnail,
+            uri: image,
           }}
         />
         <View style={styles.timeContainer}>

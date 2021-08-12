@@ -25,10 +25,12 @@ import VideoComment from "../../components/VideoComment";
 import comments from "../../assets/data/comments.json";
 import { Video, Comment } from "../../src/models";
 import { useRoute } from "@react-navigation/native";
-import { DataStore } from "aws-amplify";
+import { DataStore, Storage } from "aws-amplify";
 
 const VideoScreen = () => {
   const [video, setVideo] = useState<Video | undefined>(undefined);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const route = useRoute();
   const videoId = route.params?.id;
@@ -36,6 +38,22 @@ const VideoScreen = () => {
   useEffect(() => {
     DataStore.query(Video, videoId).then(setVideo);
   }, [videoId]);
+
+  useEffect(() => {
+    if (!video) {
+      return;
+    }
+    if (video.videoUrl.startsWith("http")) {
+      setVideoUrl(video.videoUrl);
+    } else {
+      Storage.get(video.videoUrl).then(setVideoUrl);
+    }
+    if (video.thumbnail.startsWith("http")) {
+      setImage(video.thumbnail);
+    } else {
+      Storage.get(video.thumbnail).then(setImage);
+    }
+  }, [video]);
 
   useEffect(() => {
     if (!video) {
@@ -76,7 +94,7 @@ const VideoScreen = () => {
       }}
     >
       {/* video player */}
-      <VideoPlayer videoURI={video.videoUrl} thumbnailURI={video.thumbnail} />
+      <VideoPlayer videoURI={videoUrl} thumbnailURI={image} />
       <View style={{ flex: 1 }}>
         {/* video info */}
         <View style={styles.videoInfoContainer}>

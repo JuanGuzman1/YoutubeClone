@@ -15,6 +15,7 @@ import TabTwoScreen from "../screens/TabTwoScreen";
 
 import { BottomTabParamList, TabOneParamList, TabTwoParamList } from "../types";
 import { Foundation } from "@expo/vector-icons";
+import VideoUploadScreen from "../screens/VideoUploadScreen";
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -46,7 +47,7 @@ export default function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="Add"
-        component={TabTwoNavigator}
+        component={UploadNavigator}
         options={{
           tabBarIcon: ({ color }) => (
             <AntDesign name={"pluscircleo"} size={24} color={color} />
@@ -86,5 +87,19 @@ function TabTwoNavigator() {
         options={{ headerTitle: "Tab Two Title" }}
       />
     </TabTwoStack.Navigator>
+  );
+}
+
+const UploadStack = createStackNavigator();
+
+function UploadNavigator() {
+  return (
+    <UploadStack.Navigator>
+      <UploadStack.Screen
+        name="VideoUpload"
+        component={VideoUploadScreen}
+        options={{ headerTitle: "Upload a video" }}
+      />
+    </UploadStack.Navigator>
   );
 }
