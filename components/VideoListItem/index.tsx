@@ -4,7 +4,7 @@ import { Entypo } from "@expo/vector-icons";
 import styles from "./styles";
 import { useNavigation } from "@react-navigation/native";
 import { Video } from "../../src/models";
-import { Storage } from "aws-amplify";
+import { Storage, Analytics } from "aws-amplify";
 import { useState, useEffect } from "react";
 
 type VideoListItemProps = {
@@ -35,6 +35,7 @@ const VideoListItem = (props: VideoListItemProps) => {
   }, [video]);
 
   const openVideoPage = () => {
+    Analytics.record({ name: "videoListItemClick" });
     navigation.navigate("VideoScreen", { id: video.id });
   };
 
